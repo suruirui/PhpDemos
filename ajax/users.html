@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>用户列表</title>
+    <style>
+        table,td{
+            border: 1px solid deepskyblue;
+            border-collapse: collapse;
+            text-align: center;
+        }
+        table{
+            width: 600px;
+            margin: 100px auto;
+        }
+    </style>
+</head>
+<body>
+    <button id="btn">显示用户</button>
+
+</body>
+<script>
+      var btn = document.getElementById("btn");
+
+
+      btn.onclick = function () {
+          //准备table  DOM操作
+          var table = document.createElement("table");
+          var tr = document.createElement("tr");
+          tr.innerHTML = "<th>用户名</th><th>密码</th>"
+          table.appendChild(tr);
+          document.body.appendChild(table);
+          //点击按钮，向后台发送请求，然后由后台返回数据，在页面做显示，这个过程中，页面并没有刷新，只是局部刷新
+          //这个过程就是Ajax的异步请求.接下来就是ajax出场
+
+          //ajax核心对象 XMLHTTPRequest 标准浏览器支持XMLHTTPRequest ,IE支持ActiveXObject(Microsoft.XMLHTTP)
+//          ajax三步
+          var xhr = window.XMLHttpRequest ? new XMLHttpRequest() : new ActiveXObject('Microsoft.XMLHTTP');
+          var url = "../database/db.php";   //相对路径
+          xhr.open("post",url,false);   //准备发送请求
+          xhr.onreadystatechange = function () {
+              if(xhr.readyState == 4){   //说明请求成功
+                  if(xhr.status == 200){   //200表示成功响应的状态码
+                      // xhr.responseXML;   //后台数据以XML格式返回
+                       var data = xhr.responseText;  //responseText后台数据以JSON格式返回
+                      /**
+                       * 以下是对返回的json数据的解析和页面渲染
+                       */
+                      //切割多个json字符串 为json数组
+                      var jsonArr = data.split("-");
+                      //遍历数组，取出每个json 并转换object
+                      var obj = {};
+                      var username,password;
+                      for(var i in jsonArr){
+                          if(i!=jsonArr.length - 1){  //最后一个元素不要
+                              //将json字符串转化成对象obj
+                              obj = JSON.parse(jsonArr[i]);
+                              console.log(obj);
+                               //创建tr
+                              var trs = document.createElement("tr");
+                              trs.innerHTML = "<td>"+obj['username']+"</td><td>"+obj['password']+"</td>";
+                              table.appendChild(trs);
+                          }
+                      }
+                  }
+              }
+          }
+          xhr.send(null);
+      }
+</script>
+</html>
